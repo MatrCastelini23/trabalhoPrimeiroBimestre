@@ -1,3 +1,15 @@
+<?php
+  require_once 'classes/ListaDeAfazeres.php';
+
+  $afazeres = new ListaDeAfazeres();
+
+  $lista = $afazeres->buscarlistaAfazeres();
+
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $criar = $afazeres->criarTarefa($_POST['afazer']);
+  }
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -39,10 +51,10 @@
       <h1 class="h4 mb-1">Minhas Tarefas</h1>
       <p class="text-muted small mb-4">Adicione, edite, marque como feita ou exclua suas tarefas.</p>
 
-      <form id="taskForm" class="d-flex gap-2 mb-4">
+      <form method="POST" class="d-flex gap-2 mb-4">
         <input
           type="text"
-          id="taskInput"
+          name="afazer"
           class="form-control"
           placeholder="Digite uma nova tarefa..."
           required
@@ -53,12 +65,20 @@
         </button>
       </form>
 
-      <ul id="taskList" class="list-group"></ul>
-
-      <div id="emptyState" class="text-center text-muted py-5">
-        <i class="bi bi-clipboard-check fs-1 d-block mb-2"></i>
-        Nenhuma tarefa pendente.
-      </div>
+      <ul  class="list-group">
+        <?php if(empty($lista)): ?>
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-clipboard-check fs-1 d-block mb-2"></i>
+            Nenhuma tarefa pendente.
+          </div>
+          <?php else: ?>
+          <?php foreach($lista as $l): ?>
+              <li><?= htmlspecialchars($l["afazer"] ?? 'Sem afazeres') ?></li>
+              <button>Concluir</button>
+              <button>Deletar</button>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </ul>
 
       <div id="counter" class="text-muted small mt-3"></div>
 
