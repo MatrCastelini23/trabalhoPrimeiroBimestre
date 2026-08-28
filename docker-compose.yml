@@ -1,5 +1,6 @@
 services:
   web-php:
+    #build criado para personalizar a imagem de php-apache 8.3 dentro do Dockerfile na pasta web
     build:
       context: ./web
       dockerfile: Dockerfile
@@ -21,6 +22,7 @@ services:
       - "3306:3306"
     volumes:
       - data_base:/var/lib/mysql
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql #volume criado para rodar o SQL dentro do db.sql na raiz do projeto 
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
