@@ -1,0 +1,26 @@
+body {
+  background-color: #f4f6f9;
+  min-height: 100vh;
+}
+
+.app-card {
+  max-width: 640px;
+  margin: 48px auto;
+}
+
+.task-item {
+  transition: background-color .15s ease;
+}
+
+.task-item.done .task-text {
+  text-decoration: line-through;
+  color: #9aa0a6;
+}
+
+.task-text {
+  word-break: break-word;
+}
+
+#emptyState {
+  display: none;
+}
