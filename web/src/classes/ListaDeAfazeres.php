@@ -28,7 +28,7 @@ class ListaDeAfazeres{
     public function atualizarTarefa($id, $data_realizada){
         $sql = "UPDATE listaDeAfazeres SET completo = :completo, data_realizada = :data_realizada WHERE id = :id";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':completo', 1);
+        $stmt->bindValue(':completo', 1, PDO::PARAM_INT);
         $stmt->bindParam(':data_realizada', $data_realizada);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
