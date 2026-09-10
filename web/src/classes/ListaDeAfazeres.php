@@ -23,6 +23,7 @@ class ListaDeAfazeres{
             'completo' => 0,
             'data_realizada' => '0000-00-00'
         ]);
+        echo "Tarefa criada";
     }
 
     public function atualizarTarefa($id, $data_realizada){
@@ -35,10 +36,20 @@ class ListaDeAfazeres{
         echo "Tarefa atualizada";
     }
 
+    public function editarTarefa($id, $afazer){
+        $sql = "UPDATE listaDeAfazeres SET afazer = :afazer WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':afazer', $afazer);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        echo "Tarefa editada";
+    }
+
     public function deletarTarefa($id){
         $sql = "DELETE FROM listaDeAfazeres WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
+        echo "Tarefa Deletada";
     }
 }

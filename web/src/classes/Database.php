@@ -10,12 +10,22 @@ class Database{
 
     public function connect() {
         if(!$this->pdo){
-            try{
-                $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db}";
-                $this->pdo = new PDO($dsn, $this->user, $this->pass);
-                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch(PDOException $e) {
-                die("Erro ao conectar ao banco de dados" .$e->getMessage());
+            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db}";
+            $lastException = null;
+
+            for ($attempt = 1; $attempt <= 10; $attempt++) {
+                try {
+                    $this->pdo = new PDO($dsn, $this->user, $this->pass);
+                    $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    break;
+                } catch(PDOException $e) {
+                    $lastException = $e;
+                    usleep(500000);
+                }
+            }
+
+            if (!$this->pdo) {
+                die("Erro ao conectar ao banco de dados: " . $lastException->getMessage());
             }
         }
         return $this->pdo;
