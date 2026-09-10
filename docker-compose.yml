@@ -1,42 +1,55 @@
 services:
+  # o serviço web-php é responsavel pelo servidor apache, aonde a aplicação é acessivel no navegador
   web-php:
-    #build criado para personalizar a imagem de php-apache 8.3 dentro do Dockerfile na pasta web
+    # nome do serviço
     build:
-      context: ./web
-      dockerfile: Dockerfile
-    container_name: web-php
+      # indica ao compose que deverá construir um o container através de um Dockerfile
+      context: ./web # passa o caminho aonde encontrar o Dockerfile apartir da raiz do projeto
+      dockerfile: Dockerfile # nome do arquivo que deve buscar no caminho acima
+    container_name: web-php # nome do container
     ports:
+      # portas de comunicação do container
       - "8080:80"
     volumes:
+      # salva dados que não devem ser excluido ao derrubar o container
       - ./web/src:/var/www/html
     depends_on:
+      # indica que o funcionamento do serviço depende de um segundo serviço
       - db
+  # o serviço db é resposavel pelo banco de dados. 
   db:
-    image: mariadb:11.4
-    container_name: db_job
-    restart: always
+    image: mariadb:11.4 # imagem retirada do docker hub
+    container_name: db_job # nome do container
+    restart: always # indica que em caso de erro, o serviço deve ser reiniciado 
     environment:
+      # variaveis de ambiente
       MARIADB_ROOT_PASSWORD: claudinhoEBuchecha
       MARIADB_DATABASE: soLove
     ports:
+      # portas de comunicação do container
       - "3306:3306"
     volumes:
+      # salva dados que não devem ser excluido ao derrubar o container
       - data_base:/var/lib/mysql
       - ./db.sql:/docker-entrypoint-initdb.d/db.sql #volume criado para rodar o SQL dentro do db.sql na raiz do projeto 
-
+  # o serviço phpmyadmin é resposavel pelo gerenciamento e administração do banco de dados via web
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: acesso_banco
-    restart: always
+    image: phpmyadmin/phpmyadmin:latest # imagem retirada do docker hub
+    container_name: acesso_banco # nome do container
+    restart: always # indica que em caso de erro, o serviço deve ser reiniciado 
     ports:
+      # portas de comunicação do container 
       - "8081:80"
     environment:
+      # variaveis de ambiente para conexão com o banco
       PMA_HOST: db
       PMA_USER: root
       PMA_PASSWORD: claudinhoEBuchecha
       PMA_PORT: 3306
     depends_on:
+      # indica que o funcionamento do serviço depende de um segundo serviço
       - db
 
 volumes:
+  # volumes criados dentro do Docker Desktop
   data_base:
