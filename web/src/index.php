@@ -13,7 +13,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $dados = json_decode(file_get_contents('php://input'), true);
-    $afazeres->atualizarTarefa($dados['id'], date('Y-m-d'));
+
+    if (isset($dados['afazer'])) {
+        // Payload contém o texto da tarefa -> é uma edição
+        $afazeres->editarTarefa($dados['id'], $dados['afazer']);
+    } else {
+        // Sem texto -> é uma conclusão de tarefa
+        $afazeres->atualizarTarefa($dados['id'], date('Y-m-d'));
+    }
     exit;
   }
 
@@ -68,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span<?= $l['completo'] == 1 ? ' class="text-decoration-line-through text-muted"' : '' ?>><?= htmlspecialchars($l["afazer"] ?? 'Sem afazeres') ?></span>
                 <span class="flex-shrink-0">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="abrirEdicao(<?= (int)$l['id'] ?>, <?= htmlspecialchars(json_encode($l['afazer'] ?? ''), ENT_QUOTES, 'UTF-8') ?>)">Editar</button>
                   <?php if($l['completo'] != 1): ?>
                     <button type="button" class="btn btn-sm btn-success" onclick="concluirTarefa(<?= (int)$l['id'] ?>)">Concluir</button>
                   <?php endif; ?>
@@ -107,6 +115,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
 <script>
+  let tarefaEmEdicaoId = null;
+  const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+
+  function abrirEdicao(id, afazerAtual) {
+    tarefaEmEdicaoId = id;
+    document.getElementById('editInput').value = afazerAtual;
+    editModal.show();
+  }
+
+  document.getElementById('editForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const novoAfazer = document.getElementById('editInput').value.trim();
+    if (!novoAfazer || tarefaEmEdicaoId === null) return;
+
+    editarTarefa(tarefaEmEdicaoId, novoAfazer);
+  });
+
+  function editarTarefa(id, afazer) {
+    fetch(window.location.href, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, afazer: afazer })
+    }).then(() => location.reload());
+  }
+
   function concluirTarefa(id) {
     fetch(window.location.href, {
       method: 'PUT',
