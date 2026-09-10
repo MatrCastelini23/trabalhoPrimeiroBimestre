@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $dados = json_decode(file_get_contents('php://input'), true);
 
+    // Decide qual operação rodar dependendo do que veio no corpo da requisição PUT
     if (isset($dados['afazer'])) {
         // Payload contém o texto da tarefa -> é uma edição
         $afazeres->editarTarefa($dados['id'], $dados['afazer']);
@@ -75,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span<?= $l['completo'] == 1 ? ' class="text-decoration-line-through text-muted"' : '' ?>><?= htmlspecialchars($l["afazer"] ?? 'Sem afazeres') ?></span>
                 <span class="flex-shrink-0">
+                  <!-- Botão novo: ao clicar, chama a função JS abrirEdicao(), passando o id e o texto atual da tarefa (já escapado pra HTML/JSON) -->
                   <button type="button" class="btn btn-sm btn-outline-secondary" onclick="abrirEdicao(<?= (int)$l['id'] ?>, <?= htmlspecialchars(json_encode($l['afazer'] ?? ''), ENT_QUOTES, 'UTF-8') ?>)">Editar</button>
                   <?php if($l['completo'] != 1): ?>
                     <button type="button" class="btn btn-sm btn-success" onclick="concluirTarefa(<?= (int)$l['id'] ?>)">Concluir</button>
@@ -116,27 +118,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script>
   let tarefaEmEdicaoId = null;
+  // Cria a instância do modal do Bootstrap, ligada à div #editModal do HTML
   const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 
+  // Função nova: chamada pelo onclick do botão "Editar" de cada tarefa
   function abrirEdicao(id, afazerAtual) {
+    // Guarda o id da tarefa que está sendo editada, pra usar depois no submit do form
     tarefaEmEdicaoId = id;
+    // Preenche o campo de texto do modal com o valor atual da tarefa
     document.getElementById('editInput').value = afazerAtual;
+    // Abre (exibe) o modal de edição na tela
     editModal.show();
   }
 
+  // Escuta o envio do formulário de edição (botão "Salvar" do modal)
   document.getElementById('editForm').addEventListener('submit', function (e) {
+    // Impede o comportamento padrão do form (que recarregaria a página sozinho)
     e.preventDefault();
     const novoAfazer = document.getElementById('editInput').value.trim();
+    // Se o campo estiver vazio, ou não houver tarefa selecionada, não faz nada
     if (!novoAfazer || tarefaEmEdicaoId === null) return;
 
+    // Dispara a atualização de fato, mandando o id e o novo texto
     editarTarefa(tarefaEmEdicaoId, novoAfazer);
   });
 
+  // Função nova: manda ao servidor o texto editado da tarefa
   function editarTarefa(id, afazer) {
+    // Faz uma requisição PUT pra própria página, com o corpo em JSON
     fetch(window.location.href, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: id, afazer: afazer })
+    // Quando a resposta chega, recarrega a página pra mostrar a tarefa já atualizada
     }).then(() => location.reload());
   }
 

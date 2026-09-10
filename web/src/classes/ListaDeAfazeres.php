@@ -23,6 +23,7 @@ class ListaDeAfazeres{
             'completo' => 0,
             'data_realizada' => '0000-00-00'
         ]);
+        // Imprime uma mensagem de confirmação direto na resposta da requisição
         echo "Tarefa criada";
     }
 
@@ -36,12 +37,18 @@ class ListaDeAfazeres{
         echo "Tarefa atualizada";
     }
 
+    // Método novo: atualiza só o texto (afazer) de uma tarefa existente, sem mexer em completo/data
     public function editarTarefa($id, $afazer){
         $sql = "UPDATE listaDeAfazeres SET afazer = :afazer WHERE id = :id";
+        // Prepara o comando SQL acima pra evitar SQL injection
         $stmt = $this->db->prepare($sql);
+        // Associa o valor de $afazer ao placeholder :afazer da query preparada
         $stmt->bindParam(':afazer', $afazer);
+        // Associa o valor de $id ao placeholder :id da query preparada
         $stmt->bindParam(':id', $id);
+        // Executa o UPDATE de fato no banco, usando os valores associados acima
         $stmt->execute();
+        // Imprime uma mensagem de confirmação direto na resposta da requisição
         echo "Tarefa editada";
     }
 
@@ -50,6 +57,7 @@ class ListaDeAfazeres{
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
+        // Imprime uma mensagem de confirmação direto na resposta da requisição
         echo "Tarefa Deletada";
     }
 }
