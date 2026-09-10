@@ -37,7 +37,7 @@ class ListaDeAfazeres{
         echo "Tarefa atualizada";
     }
 
-    // Método novo: atualiza só o texto (afazer) de uma tarefa existente, sem mexer em completo/data
+    // Atualiza só o texto de uma tarefa existente, sem mexer em completo/data
     public function editarTarefa($id, $afazer){
         $sql = "UPDATE listaDeAfazeres SET afazer = :afazer WHERE id = :id";
         // Prepara o comando SQL acima pra evitar SQL injection
